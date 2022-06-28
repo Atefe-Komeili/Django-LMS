@@ -1,5 +1,10 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+
+
+class User(AbstractUser):
+    pass
 
 
 class Category(models.Model):
@@ -15,7 +20,7 @@ class Category(models.Model):
 class Course(models.Model):
     name = models.CharField(max_length=50)
     # number_of_lessons
-    time = models.DateTimeField(auto_now_add=True)
+    create_date = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -27,9 +32,12 @@ class Vote(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     rating = models.IntegerField()
 
+    class Meta:
+        unique_together = ("user", "course")
+
 
 class Lesson(models.Model):
-    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name="lessons")
     title = models.CharField(max_length=150)
     content = models.CharField(max_length=500)
     detail = models.TextField()
@@ -45,5 +53,5 @@ class Lesson(models.Model):
 
 class Comment(models.Model):
     content = models.TextField()
-    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE)
+    lesson = models.ForeignKey('Lesson', on_delete=models.CASCADE, related_name="comments")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
